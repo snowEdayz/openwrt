@@ -20,6 +20,9 @@ endif
 ifneq ($(CONFIG_SDK)$(CONFIG_PACKAGE_kmod-b43)$(CONFIG_BRCMSMAC_USE_FW_FROM_WL),)
   BUILD_B43_TOOLS = y
 endif
+ifneq ($(CONFIG_SDK)$(CONFIG_TARGET_INITRAMFS_COMPRESSION_BZIP2),)
+  BUILD_BZIP2_TOOLS = y
+endif
 ifneq ($(CONFIG_SDK)$(CONFIG_TARGET_INITRAMFS_COMPRESSION_LZ4),)
   BUILD_LZ4_TOOLS = y
 endif
@@ -36,12 +39,14 @@ tools-y += cmake
 tools-y += cpio
 tools-y += dosfstools
 tools-y += e2fsprogs
+tools-y += elfutils
 tools-y += expat
 tools-y += fakeroot
 tools-y += findutils
 tools-y += firmware-utils
 tools-y += flex
 tools-y += gengetopt
+tools-y += gnulib
 tools-y += libressl
 tools-y += libtool
 tools-y += lzma
@@ -66,6 +71,7 @@ tools-y += zlib
 tools-y += zstd
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS),y) += liblzo
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(BUILD_B43_TOOLS),y) += b43-tools
+tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(BUILD_BZIP2_TOOLS),y) += bzip2
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(BUILD_ISL),y) += isl
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(BUILD_LZ4_TOOLS),y) += lz4
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(BUILD_LZO_TOOLS),y) += lzop
@@ -78,6 +84,7 @@ tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_TARGET_tegra),y) += cbootimage
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_USES_MINOR),y) += kernel2minor
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_USE_SPARSE),y) += sparse
 tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_USE_LLVM_BUILD),y) += llvm-bpf
+tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_USE_MOLD),y) += mold
 
 # builddir dependencies
 $(curdir)/autoconf/compile := $(curdir)/m4/compile
@@ -89,6 +96,7 @@ $(curdir)/cbootimage/compile += $(curdir)/automake/compile
 $(curdir)/cmake/compile += $(curdir)/libressl/compile $(curdir)/ninja/compile $(curdir)/expat/compile $(curdir)/xz/compile $(curdir)/zlib/compile $(curdir)/zstd/compile
 $(curdir)/dosfstools/compile := $(curdir)/automake/compile
 $(curdir)/e2fsprogs/compile := $(curdir)/libtool/compile
+$(curdir)/elfutils/compile := $(curdir)/m4/compile $(curdir)/zlib/compile $(curdir)/gnulib/compile $(curdir)/libtool/compile
 $(curdir)/fakeroot/compile := $(curdir)/libtool/compile
 $(curdir)/findutils/compile := $(curdir)/bison/compile
 $(curdir)/firmware-utils/compile += $(curdir)/cmake/compile
@@ -99,7 +107,8 @@ $(curdir)/gmp/compile := $(curdir)/libtool/compile
 $(curdir)/isl/compile := $(curdir)/gmp/compile
 $(curdir)/liblzo/compile := $(curdir)/cmake/compile
 $(curdir)/libressl/compile := $(curdir)/pkgconf/compile
-$(curdir)/libtool/compile := $(curdir)/automake/compile $(curdir)/missing-macros/compile
+$(curdir)/libtool/compile := $(curdir)/automake/compile $(curdir)/gnulib/compile $(curdir)/missing-macros/compile
+$(curdir)/lz4/compile := $(curdir)/meson/compile
 $(curdir)/lzma-old/compile := $(curdir)/zlib/compile
 $(curdir)/lzop/compile := $(curdir)/cmake/compile $(curdir)/liblzo/compile
 $(curdir)/llvm-bpf/compile := $(curdir)/cmake/compile
@@ -108,6 +117,7 @@ $(curdir)/meson/compile := $(curdir)/ninja/compile
 $(curdir)/missing-macros/compile := $(curdir)/autoconf/compile
 $(curdir)/mkimage/compile += $(curdir)/bison/compile $(curdir)/libressl/compile
 $(curdir)/mklibs/compile := $(curdir)/libtool/compile
+$(curdir)/mold/compile := $(curdir)/cmake/compile $(curdir)/zlib/compile $(curdir)/zstd/compile
 $(curdir)/mpc/compile := $(curdir)/mpfr/compile $(curdir)/gmp/compile
 $(curdir)/mpfr/compile := $(curdir)/gmp/compile
 $(curdir)/mtd-utils/compile := $(curdir)/libtool/compile $(curdir)/e2fsprogs/compile $(curdir)/zlib/compile
@@ -121,6 +131,7 @@ $(curdir)/squashfs4/compile := $(curdir)/xz/compile $(curdir)/zlib/compile
 $(curdir)/zstd/compile := $(curdir)/meson/compile
 
 ifneq ($(HOST_OS),Linux)
+  $(curdir)/coreutils/compile += $(curdir)/automake/compile $(curdir)/bison/compile $(curdir)/gnulib/compile
   $(curdir)/squashfs4/compile += $(curdir)/coreutils/compile
   tools-y += coreutils
 endif
@@ -128,9 +139,7 @@ ifeq ($(HOST_OS),Darwin)
   tools-y += bash
 else
   $(curdir)/dwarves/compile += $(curdir)/elfutils/compile
-  $(curdir)/elfutils/compile := $(curdir)/m4/compile $(curdir)/zlib/compile
   tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_DWARVES),y) += dwarves
-  tools-y += elfutils
 endif
 
 ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)

@@ -496,16 +496,16 @@ $(eval $(call KernelPackage,nbd))
 define KernelPackage/nvme
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=NVM Express block device
-  DEPENDS:=@PCI_SUPPORT
+  DEPENDS:=@PCI_SUPPORT +kmod-hwmon-core
   KCONFIG:= \
 	CONFIG_NVME_CORE \
 	CONFIG_BLK_DEV_NVME \
 	CONFIG_NVME_MULTIPATH=n \
-	CONFIG_NVME_HWMON=n
+	CONFIG_NVME_HWMON=y
   FILES:= \
 	$(LINUX_DIR)/drivers/nvme/host/nvme-core.ko \
 	$(LINUX_DIR)/drivers/nvme/host/nvme.ko
-  AUTOLOAD:=$(call AutoLoad,30,nvme-core nvme)
+  AUTOLOAD:=$(call AutoLoad,30,nvme-core nvme,1)
 endef
 
 define KernelPackage/nvme/description
@@ -521,13 +521,13 @@ define KernelPackage/scsi-core
   TITLE:=SCSI device support
   KCONFIG:= \
 	CONFIG_SCSI \
-	CONFIG_SCSI_COMMON@ge5.15 \
+	CONFIG_SCSI_COMMON \
 	CONFIG_BLK_DEV_SD
   FILES:= \
 	$(LINUX_DIR)/drivers/scsi/scsi_mod.ko \
-	$(LINUX_DIR)/drivers/scsi/scsi_common.ko@ge5.15 \
+	$(LINUX_DIR)/drivers/scsi/scsi_common.ko \
 	$(LINUX_DIR)/drivers/scsi/sd_mod.ko
-  AUTOLOAD:=$(call AutoLoad,40,scsi_mod scsi_common@ge5.15 sd_mod,1)
+  AUTOLOAD:=$(call AutoLoad,40,scsi_mod scsi_common sd_mod,1)
 endef
 
 $(eval $(call KernelPackage,scsi-core))

@@ -56,7 +56,7 @@
 	status = "okay";
 };
 
-&wmac {
+&wifi {
 	status = "okay";
 	pinctrl-names = "default", "dbdc";
 	pinctrl-0 = <&wf_2g_5g_pins>;
@@ -108,7 +108,7 @@
 			phy-mode = "2500base-x";
 		};
 
-		switch@0 {
+		switch@1f {
 			compatible = "mediatek,mt7531";
 			reg = <31>;
 			reset-gpios = <&pio 5 0>;

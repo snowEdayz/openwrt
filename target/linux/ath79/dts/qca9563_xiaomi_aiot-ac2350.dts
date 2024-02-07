@@ -109,6 +109,20 @@
 				label = "art";
 				reg = <0x60000 0x10000>;
 				read-only;
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					macaddr_art_0: macaddr@0 {
+						reg = <0x0 0x6>;
+					};
+
+					precal_art_5000: pre-calibration@5000 {
+						reg = <0x5000 0x2f20>;
+					};
+				};
 			};
 
 			partition@70000 {
@@ -173,14 +187,11 @@
 
 &pcie {
 	status = "okay";
-};
 
-&art {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_art_0: macaddr@0 {
-		reg = <0x0 0x6>;
+	wifi@0,0 {
+		compatible = "qcom,ath10k";
+		reg = <0x0000 0 0 0 0>;
+		nvmem-cells = <&precal_art_5000>;
+		nvmem-cell-names = "pre-calibration";
 	};
 };

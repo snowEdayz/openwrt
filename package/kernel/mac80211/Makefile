@@ -10,11 +10,11 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=mac80211
 
-PKG_VERSION:=6.1-rc8
-PKG_RELEASE:=3
+PKG_VERSION:=6.5
+PKG_RELEASE:=2
 # PKG_SOURCE_URL:=@KERNEL/linux/kernel/projects/backports/stable/v5.15.58/
 PKG_SOURCE_URL:=http://mirror2.openwrt.org/sources/
-PKG_HASH:=7f3d96c2573183cd79d6a3ebe5e1b7b73c19d1326d443c85b69c4181f14e6e2b
+PKG_HASH:=908c22dceba185eab83caa5a1e58ce6b3ebdc58f099c3fd3e11c7352ebfab2d7
 
 PKG_SOURCE:=backports-$(PKG_VERSION).tar.xz
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/backports-$(PKG_VERSION)
@@ -92,7 +92,7 @@ PKG_CONFIG_DEPENDS += \
 define KernelPackage/cfg80211
   $(call KernelPackage/mac80211/Default)
   TITLE:=cfg80211 - wireless configuration API
-  DEPENDS+= +iw +iwinfo +wireless-regdb +USE_RFKILL:kmod-rfkill
+  DEPENDS+= +iw +iwinfo +wifi-scripts +wireless-regdb +USE_RFKILL:kmod-rfkill
   ABI_VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)
   FILES:= \
 	$(PKG_BUILD_DIR)/compat/compat.ko \
@@ -164,7 +164,7 @@ define KernelPackage/mac80211-hwsim
   $(call KernelPackage/mac80211/Default)
   TITLE:=mac80211 HW simulation device
   DEPENDS+= +kmod-mac80211 +@DRIVER_11AX_SUPPORT +@DRIVER_11AC_SUPPORT
-  FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/mac80211_hwsim.ko
+  FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/virtual/mac80211_hwsim.ko
   AUTOLOAD:=$(call AutoProbe,mac80211_hwsim)
 endef
 
@@ -342,6 +342,7 @@ define Build/Patch
 	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/ath10k,ath10k/)
 	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/ath11k,ath11k/)
 	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/rt2x00,rt2x00/)
+	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/mt7601u,mt7601u/)
 	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/mwl,mwl/)
 	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/brcm,brcm/)
 	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/rtl,rtl/)
@@ -357,6 +358,7 @@ define Quilt/Refresh/Package
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/ath10k,ath10k/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/ath11k,ath11k/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/rt2x00,rt2x00/)
+	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/mt7601u,mt7601u/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/mwl,mwl/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/brcm,brcm/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/rtl,rtl/)
@@ -381,14 +383,6 @@ define Build/InstallDev
 	rm -f $(1)/usr/include/mac80211-backport/linux/module.h
 endef
 
-
-define KernelPackage/cfg80211/install
-	$(INSTALL_DIR) $(1)/lib/wifi $(1)/lib/netifd/wireless
-	$(INSTALL_DATA) ./files/lib/wifi/mac80211.sh $(1)/lib/wifi
-	$(INSTALL_BIN) ./files/lib/netifd/wireless/mac80211.sh $(1)/lib/netifd/wireless
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/ieee80211
-	$(INSTALL_DATA) ./files/mac80211.hotplug $(1)/etc/hotplug.d/ieee80211/10-wifi-detect
-endef
 
 $(eval $(foreach drv,$(PKG_DRIVERS),$(call KernelPackage,$(drv))))
 $(eval $(call KernelPackage,cfg80211))

@@ -50,7 +50,6 @@ endef
 TARGET_DEVICES += asus_rt-ac1200
 
 define Device/asus_rt-ac1200-v2
-  BLOCKSIZE := 64k
   IMAGE_SIZE := 16064k
   DEVICE_VENDOR := ASUS
   DEVICE_MODEL := RT-AC1200
@@ -69,6 +68,7 @@ define Device/asus_rt-n10p-v3
   DEVICE_VENDOR := ASUS
   DEVICE_MODEL := RT-N10P
   DEVICE_VARIANT := V3
+  DEFAULT := n
 endef
 TARGET_DEVICES += asus_rt-n10p-v3
 
@@ -83,6 +83,7 @@ define Device/asus_rt-n11p-b1
   DEVICE_ALT1_VENDOR := ASUS
   DEVICE_ALT1_MODEL := RT-N300
   DEVICE_ALT1_VARIANT := B1
+  DEFAULT := n
 endef
 TARGET_DEVICES += asus_rt-n11p-b1
 
@@ -323,7 +324,6 @@ endef
 TARGET_DEVICES += jotale_js76x8-32m
 
 define Device/keenetic_kn-1613
-  BLOCKSIZE := 64k
   IMAGE_SIZE := 31488k
   DEVICE_VENDOR := Keenetic
   DEVICE_MODEL := KN-1613
@@ -381,7 +381,6 @@ endef
 TARGET_DEVICES += mediatek_linkit-smart-7688
 
 define Device/mediatek_mt7628an-eval-board
-  BLOCKSIZE := 64k
   IMAGE_SIZE := 7872k
   DEVICE_VENDOR := MediaTek
   DEVICE_MODEL := MT7628 EVB
@@ -473,6 +472,14 @@ define Device/onion_omega2p
   SUPPORTED_DEVICES += omega2p
 endef
 TARGET_DEVICES += onion_omega2p
+
+define Device/oraybox_x1
+  IMAGE_SIZE := 15360k
+  DEVICE_VENDOR := OrayBox
+  DEVICE_MODEL := X1
+  DEVICE_PACKAGES:= kmod-usb2 kmod-usb-ohci
+endef
+TARGET_DEVICES += oraybox_x1
 
 define Device/rakwireless_rak633
   IMAGE_SIZE := 7872k
@@ -586,6 +593,19 @@ define Device/tplink_archer-c50-v4
 endef
 TARGET_DEVICES += tplink_archer-c50-v4
 
+define Device/tplink_archer-c50-v6
+  $(Device/tplink-v2)
+  IMAGE_SIZE := 7616k
+  DEVICE_MODEL := Archer C50
+  DEVICE_VARIANT := v6 (CA/EU/RU)
+  TPLINK_FLASHLAYOUT := 8MSUmtk
+  TPLINK_HWID := 0x0C500006
+  TPLINK_HWREVADD := 0x6
+  DEVICE_PACKAGES := kmod-mt7615e kmod-mt7663-firmware-ap
+  IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += tplink_archer-c50-v6
+
 define Device/tplink_re200-v2
   $(Device/tplink-safeloader)
   IMAGE_SIZE := 7808k
@@ -645,6 +665,18 @@ define Device/tplink_re305-v3
   TPLINK_BOARD_ID := RE305-V3
 endef
 TARGET_DEVICES += tplink_re305-v3
+
+define Device/tplink_re365-v1
+  $(Device/tplink-safeloader)
+  DEVICE_MODEL := RE365
+  DEVICE_VARIANT := v1
+  DEVICE_PACKAGES := kmod-mt76x2
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | check-size | append-metadata
+  IMAGE_SIZE := 7680k
+  KERNEL_SIZE := 6016k
+  TPLINK_BOARD_ID := RE365
+endef
+TARGET_DEVICES += tplink_re365-v1
 
 define Device/tplink_tl-mr3020-v3
   $(Device/tplink-v2)
@@ -834,6 +866,22 @@ define Device/tplink_tl-wr902ac-v3
   IMAGE/tftp-recovery.bin := pad-extra 128k | $$(IMAGE/factory.bin)
 endef
 TARGET_DEVICES += tplink_tl-wr902ac-v3
+
+define Device/tplink_tl-wr902ac-v4
+  $(Device/tplink-v2)
+  IMAGE_SIZE := 7808k
+  DEVICE_MODEL := TL-WR902AC
+  DEVICE_VARIANT := v4
+  TPLINK_FLASHLAYOUT := 8Mmtk
+  TPLINK_HWID := 0x000dc88f
+  TPLINK_HWREV := 0x89
+  TPLINK_HWREVADD := 0x1
+  DEVICE_PACKAGES := kmod-mt7615e kmod-mt7663-firmware-ap kmod-usb2 kmod-usb-ohci \
+	kmod-usb-ledtrig-usbport
+  IMAGES := sysupgrade.bin tftp-recovery.bin
+  IMAGE/tftp-recovery.bin := pad-extra 128k | $$(IMAGE/factory.bin)
+endef
+TARGET_DEVICES += tplink_tl-wr902ac-v4
 
 define Device/unielec_u7628-01-16m
   IMAGE_SIZE := 16064k
@@ -1032,7 +1080,6 @@ TARGET_DEVICES += zbtlink_zbt-we1226
 
 define Device/zyxel_keenetic-extra-ii
   IMAGE_SIZE := 29824k
-  BLOCKSIZE := 64k
   DEVICE_VENDOR := ZyXEL
   DEVICE_MODEL := Keenetic Extra II
   DEVICE_PACKAGES := kmod-mt76x2 kmod-usb2 kmod-usb-ohci \

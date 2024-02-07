@@ -8,14 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kexec-tools
-PKG_VERSION:=2.0.26
+PKG_VERSION:=2.0.28
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/kernel/kexec
-PKG_HASH:=7fe36a064101cd5c515e41b2be393dce3ca88adce59d6ee668e0af7c0c4570cd
+PKG_HASH:=d2f0ef872f39e2fe4b1b01feb62b0001383207239b9f8041f98a95564161d053
 
 PKG_CONFIG_DEPENDS := CONFIG_KEXEC_ZLIB CONFIG_KEXEC_LZMA
+
+PKG_BUILD_FLAGS:=gc-sections
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -81,9 +83,6 @@ CONFIGURE_ARGS = \
 		$(if $(CONFIG_KEXEC_ZLIB),--with,--without)-zlib \
 		$(if $(CONFIG_KEXEC_LZMA),--with,--without)-lzma \
 		TARGET_LD="$(TARGET_CROSS)ld"
-
-TARGET_CFLAGS += -ffunction-sections -fdata-sections
-TARGET_LDFLAGS += -Wl,--gc-sections
 
 CONFIGURE_VARS += \
 	BUILD_CC="$(HOSTCC)" \

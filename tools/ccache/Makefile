@@ -5,14 +5,13 @@
 # See /LICENSE for more information.
 #
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/target.mk
 
 PKG_NAME:=ccache
-PKG_VERSION:=4.7.4
+PKG_VERSION:=4.9
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/ccache/ccache/releases/download/v$(PKG_VERSION)
-PKG_HASH:=df0c64d15d3efaf0b4f6837dd6b1467e40eeaaa807db25ce79c3a08a46a84e36
+PKG_HASH:=1ebc72324e3ab52af0b562bf54189d108e85eef6478d6304a345a3c2dc4018e0
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -22,10 +21,7 @@ CMAKE_HOST_OPTIONS += \
 	-DCMAKE_CXX_COMPILER_LAUNCHER="" \
 	-DCMAKE_SKIP_RPATH=FALSE \
 	-DCMAKE_INSTALL_RPATH="${STAGING_DIR_HOST}/lib" \
+	-DENABLE_DOCUMENTATION=OFF \
 	-DREDIS_STORAGE_BACKEND=OFF
-
-ifneq (docs-$(CONFIG_BUILD_DOCUMENTATION),docs-y)
-CMAKE_HOST_OPTIONS += -DENABLE_DOCUMENTATION=OFF
-endif
 
 $(eval $(call HostBuild))

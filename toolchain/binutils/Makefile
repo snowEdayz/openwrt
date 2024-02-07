@@ -12,6 +12,7 @@ BIN_VERSION:=$(PKG_VERSION)
 
 PKG_SOURCE_URL:=@GNU/binutils/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_CPE_ID:=cpe:/a:gnu:binutils
 
 TAR_OPTIONS += --exclude='*.rej'
 
@@ -29,6 +30,14 @@ endif
 
 ifeq ($(PKG_VERSION),2.40)
   PKG_HASH:=0f8a4c272d7f17f369ded10a4aca28b8e304828e95526da482b0ccc4dfc9d8e1
+endif
+
+ifeq ($(PKG_VERSION),2.41)
+  PKG_HASH:=ae9a5789e23459e59606e6714723f2d3ffc31c03174191ef0d015bdf06007450
+endif
+
+ifeq ($(PKG_VERSION),2.42)
+  PKG_HASH:=f6e4d41fd5fc778b06b7891457b3620da5ecea1006c6a4a41ae998109f85a800
 endif
 
 HOST_BUILD_PARALLEL:=1
@@ -50,7 +59,7 @@ HOST_CONFIGURE_ARGS = \
 	--target=$(REAL_GNU_TARGET_NAME) \
 	--with-sysroot=$(TOOLCHAIN_DIR) \
 	--with-system-zlib \
-	--without-zstd \
+	--with-zstd \
 	--enable-deterministic-archives \
 	--enable-plugins \
 	--enable-lto \
